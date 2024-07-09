@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>论文查重系统</title>
+</head>
+
+<body>
+
+  <div id="container" style="height: 100%"></div>
+  <button><a href="/Duplicate_check" class="button">返回</a></button>
+
+
+
+  <style>
+    .button {
+      position: center;
+      text-decoration: none;
+      /* 去掉下划线 */
+      color: #000;
+      /* 按钮文字颜色 */
+    }
+  </style>
+  <script type="text/javascript" src="https://registry.npmmirror.com/echarts/5.5.0/files/dist/echarts.min.js"></script>
+
+  <script type="text/javascript">
+    // 从URL查询参数中获取文件内容
+    const params = new URLSearchParams(window.location.search);
+    const duprate = params.get('content');
+
+    var dom = document.getElementById('container');
+    var myChart = echarts.init(dom, null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+    var app = {};
+
+    var option;
+
+    option = {
+      title: {
+        text: 'Referer of a Website',
+        //subtext: 'Fake Data',
+        left: 'center'
+      },
+
+
+      series: [
+        {
+          name: 'Access From',
+          type: 'pie',
+          radius: '50%',
+          data: [
+            { value: 1 - duprate, name: 'Search Engine'},
+            { value: duprate, name: 'Direct' },
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ]
+    };
+
+    if (option && typeof option === 'object') {
+      myChart.setOption(option);
+    }
+
+    window.addEventListener('resize', myChart.resize);
+  </script>
+</body>
+
+</html>
