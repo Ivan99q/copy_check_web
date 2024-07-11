@@ -6,14 +6,8 @@ import jieba
 import jieba.analyse
 from collections import OrderedDict
 import os
-import pymongo
 
-import sys
-
-sys.path.append(r"C:/Users/Administrator/Documents/duplicateChecking/Flask/app/flk_mdb")
-
-mongo = pymongo.MongoClient("127.0.0.1", 27017)
-mdb = mongo.test
+os.path.join(os.path.dirname(__file__), "..text/txt")
 
 
 class CreateMethod(object):
@@ -25,7 +19,7 @@ class CreateMethod(object):
             "name": name,
             "paragraph": paragraph,
             # 'strKeyWord': strKeyWord,
-            "shash": shash,
+            "shash": str(shash),
         }
 
     @classmethod
@@ -89,7 +83,7 @@ def string_hash(source):
 
 # Simhash 算法
 def simhash(content):
-    PATH_stop = r"C:\Users\14341\Desktop\check_copy\copy_check_web\DuplicateChecking\stop_words.txt"
+    PATH_stop = "init_database\stop_words.txt"
     jieba.analyse.set_stop_words(PATH_stop)  # 去除停用词
     keyWord = jieba.analyse.extract_tags(
         content, topK=20, withWeight=True, allowPOS=()
@@ -124,45 +118,38 @@ import time  # 不知道为什么写在开头会报错，提示找不到这个�
 
 
 # 初始化，将论文的名称/片段/Simhash保存到数据库
-def init():
+def init(content, name, idx):
+    content = content.split("\n")
     print("init() starting …")
     clock_0 = time.time()
-    PATH_lib = r"C:\Users\14341\Desktop\check_copy\copy_check_web\docs"
-    doc_name = os.listdir(PATH_lib)
-    counter_doc = 0
     lib = {}
-    for name in doc_name:
-        print(counter_doc, "\t", name)
-        counter_doc += 1
-        print(counter_doc)
-        # mdb.idx.insert(CreateMethod.create_idx(counter_doc, name))  # 生成论文索引
-        txt = np.loadtxt(
-            codecs.open(
-                os.path.join(PATH_lib, name), encoding="utf-8", errors="ignore"
-            ),
-            dtype=np.str,
-            delimiter="\r\n",
-            encoding="utf-8",
-        )
-        for paragraph in txt:
-            paragraph = (
-                paragraph.replace("\u3000", "")
-                .replace("\t", "")
-                .replace("  ", "")
-                .replace("\r", " ")
-            )  # 去除全角空格和制表符，换行替换为空格
-            if paragraph == "" or paragraph == " ":
-                continue
-            shash = simhash(paragraph)
-            if shash == "":
-                continue
-            lib = CreateMethod.create_lib(counter_doc, name, paragraph, shash)
-            for k, v in lib.items():
-                print(k + ":" + str(v))
+    for paragraph in content:
+        paragraph = (
+            paragraph.replace("\u3000", "")
+            .replace("\t", "")
+            .replace("  ", "")
+            .replace("\r", " ")
+        )  # 去除全角空格和制表符，换行替换为空格
+        if paragraph == "" or paragraph == " ":
+            continue
+        shash = simhash(paragraph)
+        if shash == "":
+            continue
+        lib = CreateMethod.create_lib(idx, name, paragraph, shash)
+        for k, v in lib.items():
+            print(k + ":" + str(v))
     clock_1 = time.time()
     print("【init time】【", clock_1 - clock_0, "】")
     print("init() executed!")
 
 
 if __name__ == "__main__":
-    init()
+    PATH_lib = r"text/txt"
+    counter_doc = 0
+    doc_name = os.listdir(PATH_lib)
+    for name in doc_name:
+        txt = """"""
+        counter_doc += 1
+        # 在外面设置好文档index，直接传入，原来的逻辑是直接一个个导入，直接按顺序记数，到几index就是几
+        idx = counter_doc
+        init(txt, doc_name, idx)
