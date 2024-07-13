@@ -14,7 +14,7 @@ class CreateMethod(object):
     # def create_mdb(cls, idx, name, paragraph, strKeyWord, shash):
     def create_lib(cls, idx, name, paragraph, shash):
         return {
-            "id": idx,
+            "`index`": idx,
             "title": name,
             "content": paragraph,
             # 'strKeyWord': strKeyWord,
@@ -23,15 +23,15 @@ class CreateMethod(object):
 
     @classmethod
     def create_idx(cls, idx, name):
-        return {"id": idx, "title": name}
+        return {"index": idx, "title": name}
 
     @classmethod
     def create_details(
         cls, idx_a, idx_b, name_a, parag_a, name_b, parag_b, hamming_dis
     ):
         return {
-            "id_a": idx_a,
-            "id_b": idx_b,
+            "index_a": idx_a,
+            "index_b": idx_b,
             "title_a": name_a,
             "content_a": parag_a,
             "title_b": name_b,
@@ -42,8 +42,8 @@ class CreateMethod(object):
     @classmethod
     def create_sum(cls, idx_a, idx_b, name_a, name_b, dupl_with_b, plagiarism_rate):
         return {
-            "idx_a": idx_a,
-            "idx_b": idx_b,
+            "index_a": idx_a,
+            "index_b": idx_b,
             "name_a": name_a,
             "name_b": name_b,
             "dupl_with_b": dupl_with_b,

@@ -37,12 +37,18 @@ def get_Author_and_From(content: str) -> dict:
         spark_llm_domain=SPARKAI_DOMAIN,
         streaming=False,
     )
-    request = "从下方文本中提取出作者以及文本来源相关(来源指的是此条文本可能来源的网站)信息，并返回给用户一个字典格式的回复（回复中不要出现与字典无关的内容，以确保该内容可以直接作为字典被读取），若某一条文本中没有发现作者和来源信息,即未知的情况下，则仍然返回字典，当其中对应的Value为None。"
+    request = '从下方文本中提取出作者以及文本来源相关(来源指的是此条文本可能来源的网站)信息，并返回给用户一个字典格式的回复（回复中不要出现与字典无关的内容，以确保该内容可以直接作为字典被读取，参考格式：{"作者": "AAA", "来源": "BBB"}），若某一条文本中没有发现作者和来源信息,即未知的情况下，则仍然返回字典，当其中对应的Value为None。'
     messages = [ChatMessage(role="user", content=request + "\n" + content)]
     handler = ChunkPrintHandler()
-    a = spark.generate([messages], callbacks=[handler])
-    # res = a.generations[0][0].text[a.generations[0][0].text.find("\n") + 1 : -4]
-    res = eval(a.generations[0][0].text)
+    try:
+        a = spark.generate([messages], callbacks=[handler])
+        # res = a.generations[0][0].text[a.generations[0][0].text.find("\n") + 1 : -4]
+        res = eval(a.generations[0][0].text)
+    except Exception:
+        res = {
+            "作者": "未知",
+            "来源": "未知",
+        }
     return res
 
 

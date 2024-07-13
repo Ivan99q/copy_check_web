@@ -33,7 +33,11 @@ def mysql_insert(table: str, columns_values: dict):
     columns = columns[:-1]
     values = values[:-1]
 
-    sql = "insert into {} ({}) values({});".format(table, columns, values)
+    sql = (
+        "insert into {} ({}) values({});".format(table, columns, values)
+        .encode("utf-8")
+        .decode("utf-8")
+    )
 
     cursor.execute(sql)
     conn.commit()
@@ -50,13 +54,17 @@ def mysql_update(table: str, columns_values: dict, conditions: dict | None):
     cv = cv[:-1]
 
     if conditions is None or len(conditions) == 0:
-        sql = "update {} set {};".format(table, cv)
+        sql = "update {} set {};".format(table, cv).encode("utf-8").decode("utf-8")
     else:
         cs = ""
         for k, v in conditions.items():
             cs += "{} = {} and".format(k, v)
         cs = cs[:-4]
-        sql = "update {} set {} where {};".format(table, cv, cs)
+        sql = (
+            "update {} set {} where {};".format(table, cv, cs)
+            .encode("utf-8")
+            .decode("utf-8")
+        )
 
     cursor.execute(sql)
     conn.commit()
@@ -74,7 +82,11 @@ def mysql_select(table: str, conditions: dict | None) -> list:
         for k, v in conditions.items():
             cs += "{} = {} and".format(k, v)
         cs = cs[:-4]
-        sql = "select * from {} where {};".format(table, cs)
+        sql = (
+            "select * from {} where {};".format(table, cs)
+            .encode("utf-8")
+            .decode("utf-8")
+        )
 
     results = []
     cursor.execute(sql)
