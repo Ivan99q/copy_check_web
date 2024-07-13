@@ -117,7 +117,7 @@ def simhash(content):
 def init(content: str, name: str, idx: int) -> list:
     # 将conent字符串转换成列表
     content = content.split("\n")
-    print("init() starting …")
+    # print("init() starting …")
     lib = {}
     res = []
     for paragraph in content:

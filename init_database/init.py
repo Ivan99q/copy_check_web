@@ -1,6 +1,8 @@
+import datetime
 import sys
 import os
 import multiprocessing
+import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
 
@@ -8,6 +10,34 @@ from mysql_script.mysql_op import *
 from text._2txt import *
 from ckg import *
 from text.sparkAPI import *
+
+global start_time
+start_time = time.time()
+
+
+def processing_bar(total):
+    global done
+    progress = (done + 1) / total
+    bar_length = 50
+    block = int(round(bar_length * progress))
+    now_time = time.time()
+    runtime = now_time - start_time
+    runtime = datetime.timedelta(seconds=int(runtime))
+    text = f"\r处理进度: [{'=' * block}{' ' * (bar_length - block)}] {int(progress) * 100}%\t{runtime}"
+    if done == total:
+        text = f"\r处理进度: [{'=' * bar_length}] 100.0%\t{runtime}"
+    sys.stdout.write(text)
+    sys.stdout.flush()
+
+
+def running_time():
+    now_time = time.time()
+    runtime = now_time - start_time
+    runtime = datetime.timedelta(seconds=int(runtime))
+    text = str(runtime)
+    sys.stdout.write(text)
+    sys.stdout.flush()
+    return runtime
 
 
 def init_row(index, row):
@@ -27,6 +57,7 @@ def init_row(index, row):
         item["`from`"] = from_
         print(item)
         mysql_insert("corpus", item)
+        running_time()
 
 
 if __name__ == "__main__":
@@ -38,6 +69,7 @@ if __name__ == "__main__":
     indexs = [A for A, _ in df.iterrows()]
     rows = [B for _, B in df.iterrows()]
 
-    with multiprocessing.Pool(processes=16) as pool:
+    total = [len(indexs) for _ in range(len(indexs))]
+    with multiprocessing.Pool(processes=24) as pool:
         # 使用map方法将任务分配到进程池中
-        results = pool.starmap(init_row, zip(indexs, rows))
+        pool.starmap(init_row, zip(indexs, rows))
