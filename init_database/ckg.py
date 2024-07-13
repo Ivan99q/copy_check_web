@@ -1,13 +1,12 @@
 # coding=utf-8
 
-import codecs
 import numpy as np
 import jieba
 import jieba.analyse
-from collections import OrderedDict
 import os
+import sys
 
-os.path.join(os.path.dirname(__file__), "..text/txt")
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
 
 
 class CreateMethod(object):
@@ -15,28 +14,28 @@ class CreateMethod(object):
     # def create_mdb(cls, idx, name, paragraph, strKeyWord, shash):
     def create_lib(cls, idx, name, paragraph, shash):
         return {
-            "idx": idx,
-            "name": name,
-            "paragraph": paragraph,
+            "id": idx,
+            "title": name,
+            "content": paragraph,
             # 'strKeyWord': strKeyWord,
             "shash": str(shash),
         }
 
     @classmethod
     def create_idx(cls, idx, name):
-        return {"idx": idx, "name": name}
+        return {"id": idx, "title": name}
 
     @classmethod
     def create_details(
         cls, idx_a, idx_b, name_a, parag_a, name_b, parag_b, hamming_dis
     ):
         return {
-            "idx_a": idx_a,
-            "idx_b": idx_b,
-            "name_a": name_a,
-            "parag_a": parag_a,
-            "name_b": name_b,
-            "parag_b": parag_b,
+            "id_a": idx_a,
+            "id_b": idx_b,
+            "title_a": name_a,
+            "content_a": parag_a,
+            "title_b": name_b,
+            "content_b": parag_b,
             "hamming_dis": hamming_dis,
         }
 
@@ -83,7 +82,7 @@ def string_hash(source):
 
 # Simhash 算法
 def simhash(content):
-    PATH_stop = "init_database\stop_words.txt"
+    PATH_stop = "init_database/stop_words.txt"
     jieba.analyse.set_stop_words(PATH_stop)  # 去除停用词
     keyWord = jieba.analyse.extract_tags(
         content, topK=20, withWeight=True, allowPOS=()
@@ -114,15 +113,13 @@ def simhash(content):
     return simhash
 
 
-import time  # 不知道为什么写在开头会报错，提示找不到这个库，写在这里就不会……
-
-
 # 初始化，将论文的名称/片段/Simhash保存到数据库
-def init(content, name, idx):
+def init(content: str, name: str, idx: int) -> list:
+    # 将conent字符串转换成列表
     content = content.split("\n")
     print("init() starting …")
-    clock_0 = time.time()
     lib = {}
+    res = []
     for paragraph in content:
         paragraph = (
             paragraph.replace("\u3000", "")
@@ -136,19 +133,16 @@ def init(content, name, idx):
         if shash == "":
             continue
         lib = CreateMethod.create_lib(idx, name, paragraph, shash)
-        for k, v in lib.items():
-            print(k + ":" + str(v))
-    clock_1 = time.time()
-    print("【init time】【", clock_1 - clock_0, "】")
-    print("init() executed!")
+        res.append(lib)
+    return res
 
 
 if __name__ == "__main__":
     PATH_lib = r"text/txt"
     counter_doc = 0
-    doc_name = os.listdir(PATH_lib)
-    for name in doc_name:
-        txt = """"文/易北辰
+    doc_name = "tttest"
+
+    txt = """文/易北辰
 在新零售业态当中，无人货架启动和运营成本貌似最低，主要面向2亿白领人群的上班时间，是新的流量价值洼地。因此无人货架成为新零售大潮中最先火起来的业态，半年多时间已有50多玩家入局：一类是创业玩家，以小e微店、猩便利、果小美、哈米科技为代表；一类是原有业务延展的创业玩家，以每日优鲜便利购、饿了么NOW、便利蜂为代表，多数在17年6月到9月入局；一类是巨头玩家，17年11月到12月入局，如有京东到家智能柜、顺丰丰e足食、阿里美的小卖柜。
 
 相比于团购、O2O、网约车、共享单车而言，以无人货架为代表的近场零售发展更为迅猛，对操盘团队的要求更高，既要舍命狂奔的“攻”，又要稳健有序的“守”。在这场攻守大戏中，看似各路玩家刚刚起步，实际上已经棋到中局。
@@ -173,9 +167,8 @@ if __name__ == "__main__":
 对于无人货架风口节奏，大家有着相似的判断：2017年是发展元年，实际上主要是下半年各路玩家入局；2018年上半年，一批缺少强有力地推团队的企业，会在以优质点位为核心的进攻之争中倒下；2018年下半年，边攻边守，一批企业会死在供应链运营上。2018年之后的格局预计是2+N，而2019年预计是巨头收场。
 值得一提的是，两轮攻守下来，跟风者基本会倒掉。剩余第一梯队玩家的过招，可能不在招式，大家有相同的软硬件配置，胜负手在于对消费者、对商业本质的理解。
 当然，企业愿景、发展策略、团队配置和能力储备只能对下一步发展做出预判，实际无人货架大战可能更为残酷，有待继续观察。
-"
 """
-        counter_doc += 1
-        # 在外面设置好文档index，直接传入，原来的逻辑是直接一个个导入，直接按顺序记数，到几index就是几
-        idx = counter_doc
-        init(txt, doc_name, idx)
+    counter_doc += 1
+    # 在外面设置好文档index，直接传入，原来的逻辑是直接一个个导入，直接按顺序记数，到几index就是几
+    idx = counter_doc
+    print(init(txt, doc_name, idx))
