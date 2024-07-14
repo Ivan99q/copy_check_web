@@ -200,21 +200,19 @@
           formData.append('content', content);
 
           // 发送 POST 请求到后端
-          fetch('/submit', {
+          fetch('submit', {
             method: 'POST',
             headers: {
               'X-CSRFToken': getCookie('csrftoken')  // 添加 CSRF 令牌到请求头
             },
             body: formData
           })
-            .then(response => {
-              if (response.ok) {
-                // 提交成功，跳转到结果页面
-                window.location.href = '/result';
-              } else {
-                // 提交失败
-                alert('提交失败，请重试！');
-              }
+            .then(response => response.text())
+            .then(html => {
+              // 将获取到的 HTML 替换当前页面的内容
+              document.open();
+              document.write(html);
+              document.close();
             })
             .catch(error => {
               console.error('Error:', error);
@@ -240,22 +238,21 @@
         formData.append('content', content);
 
         // 发送 POST 请求到后端
-        fetch('/submit', {
+        fetch('submit', {
           method: 'POST',
           headers: {
             'X-CSRFToken': getCookie('csrftoken')  // 添加 CSRF 令牌到请求头
           },
           body: formData
         })
-          .then(response => {
-            if (response.ok) {
-              // 提交成功，跳转到结果页面
-              window.location.href = '/result';
-            } else {
-              // 提交失败
-              alert('提交失败，请重试！');
-            }
+          .then(response => response.text())
+          .then(html => {
+            // 将获取到的 HTML 替换当前页面的内容
+            document.open();
+            document.write(html);
+            document.close();
           })
+
           .catch(error => {
             console.error('Error:', error);
             alert('提交失败，请重试！');
