@@ -1,72 +1,289 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%">
+<html lang="zh-CN">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>论文查重系统</title>
-</head>
-
-<body style="height: 100%; margin: 0">
-  <div id="title" class='title'>欢迎使用本论文查重系统</div>
-
-  <div class="div">
-    <form id="upload-form" enctype="multipart/form-data">
-      <input type="file" id="file-input" name="file" />
-    </form>
-    <button type="button" onclick="uploadFile()">查重</button>
-  </div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>抄袭检测</title>
   <style>
-    .div {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 20px;
     }
 
-    .input {
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
+    h1 {
+      color: #333;
     }
 
-    .title {
-      /* 绝对定位 */
-      position: center;
-      color: #000;
-      font-family: "华文彩云";
-      font-size: 40px;
-      /* 弹性布局 */
+    form {
       display: flex;
-      /* 居中 */
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: none;
+      /* 禁止手动调整大小 */
+      overflow-y: auto;
+      /* 多行内容超出自动滚动 */
+    }
+
+    .file-input-container {
+      display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .file-input-container input[type="file"] {
+      flex-grow: 1;
+    }
+
+    #removefilebutton {
+      padding: 10px 15px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: none;
+    }
+
+    #removefilebutton:hover {
+      background-color: #e53935;
+    }
+
+    .hint {
+      font-style: italic;
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #45a049;
     }
   </style>
-  <script>
-    function uploadFile() {
-      const form = document.getElementById("upload-form");
-      const formData = new FormData(form);
+</head>
 
-      fetch("/upload/", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json()) // 解析返回的 JSON 数据
-        .then((data) => {
-          if (data.success) {
-            window.location.href = `/result/?content=${encodeURIComponent(data.content)}`;
-          } else {
-            alert('文件上传失败！');
-          }
+<body>
+  <h1>欢迎使用本抄袭检测系统</h1>
+  <form onsubmit="return submitForm()" method="post">
+    {% csrf_token %}
+    <label for="title">标题:</label>
+    <input type="text" id="title" name="title" required>
+
+    <label for="author">作者:</label>
+    <input type="text" id="author" name="author" required>
+
+    <label for="content">正文:</label>
+    <textarea id="content" name="content" rows="10" oninput="checkForm()" required></textarea>
+
+    <label for="file">文件选择:</label>
+    <div class="file-input-container">
+      <input type="file" id="file" name="file" onchange="checkFile()">
+      <button type="button" id="removefilebutton" onclick="removeFile()">删除文件</button>
+    </div>
+
+    <p class="hint">请上传文件或填写正文后再提交</p>
+    <input type="submit" id="submit-button" value="提交" disabled>
+  </form>
+
+  <script>
+    // 获取相关元素的引用
+    const titleInput = document.getElementById('title');
+    const authorInput = document.getElementById('author');
+    const contentTextarea = document.getElementById('content');
+    const fileInput = document.getElementById('file');
+    const removeFileButton = document.getElementById('removefilebutton');
+    const submitButton = document.getElementById('submit-button');
+
+    submitButton.disabled = false;
+
+    // 检查表单状态的函数
+    function checkForm() {
+      // 如果正文输入框中有文本输入，则禁用文件选择框
+      if (contentTextarea.value.trim() !== '') {
+        fileInput.disabled = true;
+      } else {
+        fileInput.disabled = false;
+      }
+
+      // 如果文件选择框有文件，则禁用正文输入框以及文件选择按钮
+      if (fileInput.files.length > 0) {
+        contentTextarea.disabled = true;
+        fileInput.disabled = true;
+      } else {
+        contentTextarea.disabled = false;
+      }
+    }
+
+    // 删除文件按钮点击事件处理函数
+    function removeFile() {
+      // 清空文件输入框的值
+      fileInput.value = '';
+      // 隐藏删除按钮
+      removeFileButton.style.display = 'none';
+      // 启用正文输入框
+      contentTextarea.disabled = false;
+      // 重新检查表单状态
+      checkForm();
+    }
+
+    // 文件选择框变化事件处理函数
+    function checkFile() {
+      const file = fileInput.files[0];
+      if (file) {
+        const fileType = file.type;
+        if (fileType !== 'text/plain') {
+          alert('请上传txt格式的文件');
+          fileInput.value = ''; // 清空文件选择框的值
+        }
+        else {
+          removeFileButton.style.display = 'inline-block'; // 显示删除按钮
+        }
+      }
+      // 更新表单状态
+      checkForm();
+    }
+
+    // 提交表单的函数
+    function submitForm() {
+      // 获取表单元素
+      const titleInput = document.getElementById('title');
+      const authorInput = document.getElementById('author');
+      const contentTextarea = document.getElementById('content');
+      const fileInput = document.getElementById('file');
+
+      // 确保标题、作者和正文输入框有内容或文件选择框中有文件
+      if (titleInput.value.trim() === '' || authorInput.value.trim() === '') {
+        alert('请填写标题和作者信息');
+        return false;
+      }
+
+      // 准备存储内容的变量
+      let content = '';
+
+      // 如果选择了文件
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+          // 将文件内容存入全局变量或直接添加到 formData 中
+          content = event.target.result;
+
+          // 创建 FormData 对象
+          const formData = new FormData();
+          formData.append('title', titleInput.value.trim());
+          formData.append('author', authorInput.value.trim());
+          formData.append('content', content);
+
+          // 发送 POST 请求到后端
+          fetch('/submit', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken')  // 添加 CSRF 令牌到请求头
+            },
+            body: formData
+          })
+            .then(response => {
+              if (response.ok) {
+                // 提交成功，跳转到结果页面
+                window.location.href = '/result';
+              } else {
+                // 提交失败
+                alert('提交失败，请重试！');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('提交失败，请重试！');
+            });
+        };
+
+        reader.onerror = function (event) {
+          console.error('文件读取出错', event.target.error);
+          alert('文件读取出错，请重试！');
+        };
+
+        // 以文本格式读取文件
+        reader.readAsText(file);
+      } else if (contentTextarea.value.trim() !== '') {
+        // 如果没有选择文件但填写了正文
+        content = contentTextarea.value.trim();
+
+        // 创建 FormData 对象
+        const formData = new FormData();
+        formData.append('title', titleInput.value.trim());
+        formData.append('author', authorInput.value.trim());
+        formData.append('content', content);
+
+        // 发送 POST 请求到后端
+        fetch('/submit', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken')  // 添加 CSRF 令牌到请求头
+          },
+          body: formData
         })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('上传文件时发生了一个错误！');
-        });
-    }  
+          .then(response => {
+            if (response.ok) {
+              // 提交成功，跳转到结果页面
+              window.location.href = '/result';
+            } else {
+              // 提交失败
+              alert('提交失败，请重试！');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('提交失败，请重试！');
+          });
+      } else {
+        // 如果没有选择文件也没有填写正文
+        alert('请上传文件或填写正文后再提交');
+      }
+
+      return false; // 阻止表单默认提交行为
+    }
+
+    // 获取指定名称的 cookie 值
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (const element of cookies) {
+          const cookie = element.trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
   </script>
 </body>
 

@@ -1,77 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>论文查重系统</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .list-display {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 20px;
+      min-height: 200px;
+      overflow-y: auto;
+    }
+
+    .return-button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .return-button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 
 <body>
+  <h1>List Display Interface</h1>
+  <div class="list-display">
+    <!-- Placeholder for list display -->
+    <ul>
+      <li>
+        <p>标题：{{ title }}</p>
+        <p>作者：{{ author }}</p>
+        <p>正文：</p>
+        <p>{{ content }}</p>
+      </li>
+      <li>Item 2</li>
+      <li>Item 3</li>
+    </ul>
+  </div>
 
-  <div id="container" style="height: 100%"></div>
-  <button><a href="/Duplicate_check" class="button">返回</a></button>
+  <button class="return-button" onclick="goBack()">返回</button>
 
-
-
-  <style>
-    .button {
-      position: center;
-      text-decoration: none;
-      /* 去掉下划线 */
-      color: #000;
-      /* 按钮文字颜色 */
+  <script>
+    function goBack() {
+      // Example: Navigate back to the previous page
+      window.history.back();
     }
-  </style>
-  <script type="text/javascript" src="https://registry.npmmirror.com/echarts/5.5.0/files/dist/echarts.min.js"></script>
-
-  <script type="text/javascript">
-    // 从URL查询参数中获取文件内容
-    const params = new URLSearchParams(window.location.search);
-    const duprate = params.get('content');
-
-    var dom = document.getElementById('container');
-    var myChart = echarts.init(dom, null, {
-      renderer: 'canvas',
-      useDirtyRect: false
-    });
-    var app = {};
-
-    var option;
-
-    option = {
-      title: {
-        text: 'Referer of a Website',
-        //subtext: 'Fake Data',
-        left: 'center'
-      },
-
-
-      series: [
-        {
-          name: 'Access From',
-          type: 'pie',
-          radius: '50%',
-          data: [
-            { value: 1 - duprate, name: 'Search Engine'},
-            { value: duprate, name: 'Direct' },
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      ]
-    };
-
-    if (option && typeof option === 'object') {
-      myChart.setOption(option);
-    }
-
-    window.addEventListener('resize', myChart.resize);
   </script>
 </body>
 
