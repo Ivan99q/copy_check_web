@@ -1,9 +1,7 @@
 from django.shortcuts import render, redirect
 
-from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from werkzeug.utils import secure_filename
 import os
 import sys
 
@@ -26,6 +24,7 @@ def submit(request):
         }
 
         # TODO
+        
         # 1. 计算simhash
         # 2. 查询数据库
         # 3. 返回结果
