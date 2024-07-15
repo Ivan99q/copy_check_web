@@ -16,6 +16,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# APPEND_SLASH = False
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -57,7 +58,7 @@ ROOT_URLCONF = "itsurpaper.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, r"Duplicate_check\templates")],
+        "DIRS": [os.path.join(BASE_DIR, r"Duplicate_check/templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -78,12 +79,9 @@ WSGI_APPLICATION = "itsurpaper.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "Bigdata",
-        "USER": "ni_bikai",
-        "PASSWORD": "Nbk021015@",
-        "HOST": "rm-bp1v493gny941g42w4o.mysql.rds.aliyuncs.com",
-        "PORT": "3306",
+        # 已禁用数据库连接
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": str(BASE_DIR / "db.sqlite3"),
     }
 }
 

@@ -1,3 +1,5 @@
-# copy_check_web
+# 海量文本抄袭检测系统
 海量文本抄袭检测系统
-nbk
+本系统采用python+django开发，数据库采用mysql
+# 实现功能
+检测文本是否为抄袭
