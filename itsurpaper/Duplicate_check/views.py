@@ -55,20 +55,26 @@ def shash(
 
 
 def select_by_simhash(shashs: list) -> list:
-    res = mysql_select("corpus", {})
     # TODO 多线程查询数据库
 
-    res = res[:10]
-    items = []
-    for i in res:
-        items.append(
-            {
-                "title": str(i[3]),
-                "author": str(i[4]),
-                "from": str(i[5]),
-                "content": str(i[2]),
-            }
-        )
+    res = {}
+    for shash in shashs:
+        this_res = mysql_select("corpus", {"shash": shash})
+        if len(this_res) > 0:
+            items = []
+            for i in this_res:
+                items.append(
+                    {
+                        "title": str(i[3]),
+                        "author": str(i[4]),
+                        "from": str(i[5]),
+                        "content": str(i[2]),
+                    }
+                )
+            res[shash] = items
+        else:
+            res[shash] = []
+
     return items
 
 
