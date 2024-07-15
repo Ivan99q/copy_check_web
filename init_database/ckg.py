@@ -81,9 +81,8 @@ def string_hash(source):
 
 
 # Simhash 算法
-def simhash(content):
-    PATH_stop = "init_database/stop_words.txt"
-    jieba.analyse.set_stop_words(PATH_stop)  # 去除停用词
+def simhash(content: str, stop_words_path: str):
+    jieba.analyse.set_stop_words(stop_words_path)  # 去除停用词
     keyWord = jieba.analyse.extract_tags(
         content, topK=20, withWeight=True, allowPOS=()
     )  # 根据 TD-IDF 提取关键词，并按照权重排序
@@ -114,7 +113,12 @@ def simhash(content):
 
 
 # 初始化，将论文的名称/片段/Simhash保存到数据库
-def init(content: str, name: str, idx: int) -> list:
+def init(
+    content: str,
+    name: str,
+    idx: int,
+    stop_words_path: str = "init_database/stop_words.txt",
+) -> list:
     # 将conent字符串转换成列表
     content = content.split("\n")
     # print("init() starting …")
@@ -129,7 +133,7 @@ def init(content: str, name: str, idx: int) -> list:
         )  # 去除全角空格和制表符，换行替换为空格
         if paragraph == "" or paragraph == " ":
             continue
-        shash = simhash(paragraph)
+        shash = simhash(paragraph, stop_words_path)
         if shash == "":
             continue
         lib = CreateMethod.create_lib(idx, name, paragraph, shash)
