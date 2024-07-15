@@ -16,6 +16,10 @@
       color: #333;
     }
 
+    h2 {
+      color: #333;
+    }
+
     form {
       display: flex;
       flex-direction: column;
@@ -83,11 +87,35 @@
     input[type="submit"]:hover {
       background-color: #45a049;
     }
+
+    /* 加载中蒙版样式 */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loading-text {
+      color: white;
+      font-size: 24px;
+    }
   </style>
 </head>
 
 <body>
-  <h1>欢迎使用本抄袭检测系统</h1>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-text">加载中...</div>
+  </div>
+
+  <h1>抄袭检测</h1>
+  <h2>欢迎使用此文本抄袭检测系统</h2>
   <form onsubmit="return submitForm()" method="post">
     {% csrf_token %}
     <label for="title">标题:</label>
@@ -110,26 +138,23 @@
   </form>
 
   <script>
-    // 获取相关元素的引用
     const titleInput = document.getElementById('title');
     const authorInput = document.getElementById('author');
     const contentTextarea = document.getElementById('content');
     const fileInput = document.getElementById('file');
     const removeFileButton = document.getElementById('removefilebutton');
     const submitButton = document.getElementById('submit-button');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
     submitButton.disabled = false;
 
-    // 检查表单状态的函数
     function checkForm() {
-      // 如果正文输入框中有文本输入，则禁用文件选择框
       if (contentTextarea.value.trim() !== '') {
         fileInput.disabled = true;
       } else {
         fileInput.disabled = false;
       }
 
-      // 如果文件选择框有文件，则禁用正文输入框以及文件选择按钮
       if (fileInput.files.length > 0) {
         contentTextarea.disabled = true;
         fileInput.disabled = true;
@@ -138,134 +163,72 @@
       }
     }
 
-    // 删除文件按钮点击事件处理函数
     function removeFile() {
-      // 清空文件输入框的值
       fileInput.value = '';
-      // 隐藏删除按钮
       removeFileButton.style.display = 'none';
-      // 启用正文输入框
       contentTextarea.disabled = false;
-      // 重新检查表单状态
       checkForm();
     }
 
-    // 文件选择框变化事件处理函数
     function checkFile() {
       const file = fileInput.files[0];
       if (file) {
         const fileType = file.type;
         if (fileType !== 'text/plain') {
           alert('请上传txt格式的文件');
-          fileInput.value = ''; // 清空文件选择框的值
-        }
-        else {
-          removeFileButton.style.display = 'inline-block'; // 显示删除按钮
+          fileInput.value = '';
+        } else {
+          removeFileButton.style.display = 'inline-block';
         }
       }
-      // 更新表单状态
       checkForm();
     }
 
-    // 提交表单的函数
     function submitForm() {
-      // 获取表单元素
-      const titleInput = document.getElementById('title');
-      const authorInput = document.getElementById('author');
-      const contentTextarea = document.getElementById('content');
-      const fileInput = document.getElementById('file');
-
-      // 确保标题、作者和正文输入框有内容或文件选择框中有文件
       if (titleInput.value.trim() === '' || authorInput.value.trim() === '') {
         alert('请填写标题和作者信息');
         return false;
       }
 
-      // 准备存储内容的变量
-      let content = '';
+      const formData = new FormData();
+      formData.append('title', titleInput.value.trim());
+      formData.append('author', authorInput.value.trim());
 
-      // 如果选择了文件
       if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        const reader = new FileReader();
-
-        reader.onload = function (event) {
-          // 将文件内容存入全局变量或直接添加到 formData 中
-          content = event.target.result;
-
-          // 创建 FormData 对象
-          const formData = new FormData();
-          formData.append('title', titleInput.value.trim());
-          formData.append('author', authorInput.value.trim());
-          formData.append('content', content);
-
-          // 发送 POST 请求到后端
-          fetch('submit', {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': getCookie('csrftoken')  // 添加 CSRF 令牌到请求头
-            },
-            body: formData
-          })
-            .then(response => response.text())
-            .then(html => {
-              // 将获取到的 HTML 替换当前页面的内容
-              document.open();
-              document.write(html);
-              document.close();
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('提交失败，请重试！');
-            });
-        };
-
-        reader.onerror = function (event) {
-          console.error('文件读取出错', event.target.error);
-          alert('文件读取出错，请重试！');
-        };
-
-        // 以文本格式读取文件
-        reader.readAsText(file);
+        formData.append('content', file, file.name);
       } else if (contentTextarea.value.trim() !== '') {
-        // 如果没有选择文件但填写了正文
-        content = contentTextarea.value.trim();
-
-        // 创建 FormData 对象
-        const formData = new FormData();
-        formData.append('title', titleInput.value.trim());
-        formData.append('author', authorInput.value.trim());
-        formData.append('content', content);
-
-        // 发送 POST 请求到后端
-        fetch('submit', {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCookie('csrftoken')  // 添加 CSRF 令牌到请求头
-          },
-          body: formData
-        })
-          .then(response => response.text())
-          .then(html => {
-            // 将获取到的 HTML 替换当前页面的内容
-            document.open();
-            document.write(html);
-            document.close();
-          })
-
-          .catch(error => {
-            console.error('Error:', error);
-            alert('提交失败，请重试！');
-          });
+        formData.append('content', contentTextarea.value.trim());
       } else {
-        // 如果没有选择文件也没有填写正文
         alert('请上传文件或填写正文后再提交');
+        return false;
       }
 
-      return false; // 阻止表单默认提交行为
+      loadingOverlay.style.display = 'flex'; // 显示加载中蒙版
+
+      fetch('submit', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: formData
+      })
+        .then(response => response.text())
+        .then(html => {
+          document.open();
+          document.write(html);
+          document.close();
+          loadingOverlay.style.display = 'none'; // 隐藏加载中蒙版
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('提交失败，请重试！');
+          loadingOverlay.style.display = 'none'; // 隐藏加载中蒙版
+        });
+
+      return false;
     }
 
-    // 获取指定名称的 cookie 值
     function getCookie(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== '') {
@@ -280,7 +243,6 @@
       }
       return cookieValue;
     }
-
   </script>
 </body>
 

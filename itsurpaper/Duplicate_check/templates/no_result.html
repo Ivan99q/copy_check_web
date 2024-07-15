@@ -16,6 +16,10 @@
       color: #333;
     }
 
+    h2 {
+      color: #333;
+    }
+
     .list-display {
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -69,21 +73,15 @@
 
 <body>
   <h1>检测结果</h1>
-  <p>该本文可能抄袭以下 {{ items_count }} 个文段中的内容</p>
+  <h2>未检测到可能抄袭的文段</h2>
 
   <div class="list-display">
     <ul>
-      {% for item in items %}
       <li>
-        <p>标题：{{ item.title }}</p>
-        <p>作者：{{ item.author }}</p>
-        <p>来源：{{ item.from }}</p>
-        <p>文本段落：</p>
         <div class="content-box">
-          {{ item.content }}
+          未检测到可能抄袭的文段
         </div>
       </li>
-      {% endfor %}
     </ul>
   </div>
 
