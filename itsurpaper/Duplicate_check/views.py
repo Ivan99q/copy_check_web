@@ -55,23 +55,29 @@ def shash(
 
 
 def select_by_simhash(shashs: list) -> list:
-    res = mysql_select("corpus", {})
-    # TODO 多线程查询数据库
+    data_from_DB = mysql_select("corpus", {})
 
-    res = res[:10]
     items = []
-    for i in res:
-        items.append(
-            {
-                "title": str(i[3]),
-                "author": str(i[4]),
-                "from": str(i[5]),
-                "content": str(i[2]),
-            }
-        )
+
+    # 阈值
+    thr = 0.92
+
+    for data in data_from_DB:
+        for shash in shashs:
+            if similarity(shash, data[6]) > thr:
+                items.append(
+                    {
+                        "title": str(data[3]),
+                        "author": str(data[4]),
+                        "from": str(data[5]),
+                        "content": str(data[2]),
+                    }
+                )
     return items
 
 
-def similarity(shash_a, shash_b):
-    # TODO 计算相似度
-    return 0
+def similarity(shash_a: str, shash_b: str) -> int:
+    # 计算相似度
+    hamming = hammingDis(shash_a, shash_b)
+    res = 1 - (float(hamming) / len(shash_a))
+    return res
