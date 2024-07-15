@@ -72,6 +72,6 @@ def select_by_simhash(shashs: list) -> list:
     return items
 
 
-def similarity(a, b):
+def similarity(shash_a, shash_b):
     # TODO 计算相似度
     return 0
