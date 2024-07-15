@@ -35,7 +35,11 @@ def submit(request):
         # 返回结果
         if len(items) == 0:
             return render(request, "no_result.html")
-        context = {"items": items, "items_count": str(len(items))}
+        context = {
+            "original_content": data["content"].split("\n"),
+            "items": items,
+            "items_count": str(len(items)),
+        }
         return render(request, "result.html", context=context)
     else:
         return render(request, "index.html")  # 在非 POST 请求时返回 index 页面
@@ -59,7 +63,9 @@ def select_by_simhash(shashs: list) -> list:
 
     res = {}
     for shash in shashs:
+        # TODO 从数据库中获取相似度超过阈值的文段
         this_res = mysql_select("corpus", {"shash": shash})
+
         if len(this_res) > 0:
             items = []
             for i in this_res:
@@ -74,10 +80,11 @@ def select_by_simhash(shashs: list) -> list:
             res[shash] = items
         else:
             res[shash] = []
-
     return items
 
 
-def similarity(a, b):
-    # TODO 计算相似度
-    return 0
+def similarity(shash_a, shash_b):
+    # 计算相似度
+    hanming = hammingDis(shash_a, shash_b)
+    res = float(hanming) / len(shash_a)
+    return res
