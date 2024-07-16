@@ -97,6 +97,16 @@ def mysql_select(table: str, conditions: dict | None) -> list:
     return results
 
 
+def mysql_exectute(sql: str):
+    conn, cursor = mysql_init()
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return results
+
+
 if __name__ == "__main__":
     mysql_insert("test", {"ttt": 2})
     mysql_update("test", {"ttt": 3}, {"ttt": 1})
