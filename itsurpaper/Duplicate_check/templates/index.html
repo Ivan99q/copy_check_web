@@ -190,42 +190,78 @@
         return false;
       }
 
-      const formData = new FormData();
-      formData.append('title', titleInput.value.trim());
-      formData.append('author', authorInput.value.trim());
+
 
       if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        formData.append('content', file, file.name);
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          // 文件读取完成后，将内容存入变量
+          const content = event.target.result;
+
+          const formData = new FormData();
+          formData.append('title', titleInput.value.trim());
+          formData.append('author', authorInput.value.trim());
+          formData.append('content', content);
+
+          loadingOverlay.style.display = 'flex'; // 显示加载中蒙版
+
+          fetch('submit', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData
+          })
+            .then(response => response.text())
+            .then(html => {
+              document.open();
+              document.write(html);
+              document.close();
+              loadingOverlay.style.display = 'none'; // 隐藏加载中蒙版
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('提交失败，请重试！');
+              loadingOverlay.style.display = 'none'; // 隐藏加载中蒙版
+            });
+        }
+        reader.onerror = function (event) {
+          console.error('文件读取出错', event.target.error);
+          alert('文件读取出错，请重试！');
+        };
+        //读取文件
+        reader.readAsText(file);
       } else if (contentTextarea.value.trim() !== '') {
+        const formData = new FormData();
+        formData.append('title', titleInput.value.trim());
+        formData.append('author', authorInput.value.trim());
         formData.append('content', contentTextarea.value.trim());
+        loadingOverlay.style.display = 'flex'; // 显示加载中蒙版
+
+        fetch('submit', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: formData
+        })
+          .then(response => response.text())
+          .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+            loadingOverlay.style.display = 'none'; // 隐藏加载中蒙版
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('提交失败，请重试！');
+            loadingOverlay.style.display = 'none'; // 隐藏加载中蒙版
+          });
       } else {
         alert('请上传文件或填写正文后再提交');
         return false;
       }
-
-      loadingOverlay.style.display = 'flex'; // 显示加载中蒙版
-
-      fetch('submit', {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: formData
-      })
-        .then(response => response.text())
-        .then(html => {
-          document.open();
-          document.write(html);
-          document.close();
-          loadingOverlay.style.display = 'none'; // 隐藏加载中蒙版
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('提交失败，请重试！');
-          loadingOverlay.style.display = 'none'; // 隐藏加载中蒙版
-        });
-
       return false;
     }
 
