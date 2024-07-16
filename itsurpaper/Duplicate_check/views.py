@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -58,22 +58,30 @@ def shash(content: str) -> list:
 
 
 def select_by_simhash(shashs: list) -> dict:
-    # TODO 多线程查询数据库
+    # 多线程查询数据库
+    with multiprocessing.Pool(processes=8) as pool:
+        return pool.map(sub_select, shashs)
 
+
+def sub_select(shash: dict):
     # 阈值
     thr = 0.92
 
-    def sub_select(shashs: list):
-        # 查询数据库
-        res = []
-        sql = """
-            SELECT * FROM corpus WHERE shash IN ()
-        """
-        res.append(mysql_exectute(sql))
-
-    with multiprocessing.Pool(processes=8) as pool:
-        res = dict()
-        pool.map(sub_select, shashs)
+    # 查询数据库
+    sql = """
+        SELECT id, `index`, content, title, author, `from`, shash, similarity(shash, '{}') AS simi
+            FROM corpus 
+            HAVING simi > {}
+    """
+    res_select = mysql_exectute(sql.format(shash["shash"], thr))
+    return {
+        "copy": shash["id"],
+        "title": res_select[3],
+        "author": res_select[4],
+        "from": res_select[5],
+        "content": res_select[2],
+        "similarity": res_select[7],
+    }
 
 
 def similarity(shash_a: str, shash_b: str) -> float:

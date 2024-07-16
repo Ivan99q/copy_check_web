@@ -8,6 +8,8 @@ def mysql_init():
         "password": "mysql@admin123",
         "host": "rm-wz900944kd610ohzl4o.mysql.rds.aliyuncs.com",
         "database": "copy_check",
+        "charset": "utf8mb4",
+        "collation": "utf8mb4_unicode_ci",
         "raise_on_warnings": True,
     }
 
