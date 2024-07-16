@@ -64,6 +64,10 @@ def select_by_simhash(shashs: list) -> list:
     res = {}
     for shash in shashs:
         # TODO 从数据库中获取相似度超过阈值的文段
+
+        # 阈值
+        thr = 0.92
+
         this_res = mysql_select("corpus", {"shash": shash})
 
         if len(this_res) > 0:
@@ -83,8 +87,8 @@ def select_by_simhash(shashs: list) -> list:
     return items
 
 
-def similarity(shash_a, shash_b):
+def similarity(shash_a: str, shash_b: str) -> int:
     # 计算相似度
     hanming = hammingDis(shash_a, shash_b)
-    res = float(hanming) / len(shash_a)
+    res = 1 - (float(hanming) / len(shash_a))
     return res
