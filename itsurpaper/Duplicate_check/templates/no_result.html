@@ -47,13 +47,13 @@
     }
 
     .list-display .content-box {
-      max-height: 150px;
+      /*max-height: 150px;*/
       overflow-y: auto;
       padding: 10px;
       border: 1px solid #ccc;
-      background-color: #fff;
+      background-color: #f9f9f9;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 18px;
+      font-size: 20px;
     }
 
     .return-button {
@@ -73,15 +73,19 @@
 
 <body>
   <h1>检测结果</h1>
+  <h2>标题：{{ title }}</h2>
+  <h2>作者：{{ author }}</h2>
   <h2>未检测到可能抄袭的文段</h2>
 
   <div class="list-display">
     <ul>
+      {% for c in original_content %}
       <li>
         <div class="content-box">
-          未检测到可能抄袭的文段
+          {{ c }}
         </div>
       </li>
+      {% endfor %}
     </ul>
   </div>
 
