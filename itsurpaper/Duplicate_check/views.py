@@ -77,7 +77,7 @@ def select_by_simhash(shashs: list) -> list:
     return items
 
 
-def similarity(shash_a: str, shash_b: str) -> int:
+def similarity(shash_a: str, shash_b: str) -> float:
     # 计算相似度
     hamming = hammingDis(shash_a, shash_b)
     res = 1 - (float(hamming) / len(shash_a))
