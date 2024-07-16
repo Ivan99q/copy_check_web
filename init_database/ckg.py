@@ -141,6 +141,36 @@ def init(
     return res
 
 
+def init_with_unabled(
+    content: str,
+    stop_words_path: str = "init_database/stop_words.txt",
+) -> list:
+    # 将conent字符串转换成列表
+    content = content.split("\n")
+    content.remove("\r")
+    res = []
+    i = 0
+    for paragraph in content:
+        paragraph = (
+            paragraph.replace("\u3000", "")
+            .replace("\t", "")
+            .replace("  ", "")
+            .replace("\r", " ")
+        )  # 去除全角空格和制表符，换行替换为空格
+        if paragraph == "" or paragraph == " ":
+            res.append({"id": i, "para": paragraph, "shash": ""})
+            i += 1
+            continue
+        shash = simhash(paragraph, stop_words_path)
+        if shash == "":
+            res.append({"id": i, "para": paragraph, "shash": ""})
+            i += 1
+            continue
+        res.append({"id": i, "para": paragraph, "shash": shash})
+        i += 1
+    return res
+
+
 if __name__ == "__main__":
     PATH_lib = r"text/txt"
     counter_doc = 0
