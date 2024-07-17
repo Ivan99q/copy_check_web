@@ -5,6 +5,8 @@ import jieba
 import jieba.analyse
 import os
 import sys
+import hashlib
+
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
 
@@ -112,6 +114,42 @@ def simhash(content: str, stop_words_path: str):
     return simhash
 
 
+def get_hash_value(i, shingle):
+    combined_str = str(i) + shingle
+    byte_str = combined_str.encode("utf-8")
+    hex_hash = hashlib.md5(byte_str).hexdigest()
+    hash_value = int(hex_hash, 16)
+    return hash_value
+
+
+# MinHash
+def minhash(content: str, stop_words_path: str):
+    num_hashes = 64
+    jieba.analyse.set_stop_words(stop_words_path)  # 去除停用词
+    keyWord = jieba.analyse.extract_tags(
+        content, topK=20, withWeight=True, allowPOS=()
+    )  # 根据 TD-IDF 提取关键词，并按照权重排序
+    shingles = set()
+    for i in range(len(keyWord) - 2):
+        shingle = "".join([str(word) for word, _ in keyWord[i : i + 3]])
+        shingles.add(shingle)
+
+    minhashes = []
+    for i in range(num_hashes):
+        min_hash = float("inf")
+        for shingle in shingles:
+            hash_value = get_hash_value(i, shingle)
+            if hash_value < min_hash:
+                min_hash = hash_value
+        minhashes.append(min_hash)
+    return minhashes
+
+
+# Jaccard
+def jaccard_similarity(minhash1, minhash2):
+    return len(set(minhash1) & set(minhash2)) / len(set(minhash1) | set(minhash2))
+
+
 # 初始化，将论文的名称/片段/Simhash保存到数据库
 def init(
     content: str,
@@ -171,6 +209,53 @@ def init_with_unabled(
     return res
 
 
+def init_with_sentence(
+    content: str, stop_words_path: str = "init_database/stop_words.txt"
+) -> dict:
+    # 将conent字符串转换成列表
+    content = content.split("\n")
+
+    while True:
+        if "\r" in content:
+            content.remove("\r")
+            continue
+        if "" in content:
+            content.remove("")
+            continue
+        if "\n" in content:
+            content.remove("\n")
+            continue
+        break
+
+    res = []
+    parai = 0
+    for c in content:
+        sentence = []
+        while c.find("。") != -1:
+            sentence.append(c[: c.find("。") + 1])
+            c = c[c.find("。") + 1 :]
+        sentence.append(c)
+
+        para_res = []
+        for s in sentence:
+            s = (
+                s.replace("\u3000", "")
+                .replace("\t", "")
+                .replace("  ", "")
+                .replace("\r", "")
+            )  # 去除全角空格和制表符，换行替换为空格
+            if s == "" or s == " ":
+                continue
+            shash = simhash(s, stop_words_path)
+            if shash == "":
+                para_res.append({"sentence": s, "shash": ""})
+                continue
+            para_res.append({"sentence": s, "shash": shash})
+        res.append({"para_id": parai, "para_sentence": para_res})
+        parai += 1
+    return {"paragraphs": res}
+
+
 if __name__ == "__main__":
     PATH_lib = r"text/txt"
     counter_doc = 0
@@ -206,4 +291,4 @@ if __name__ == "__main__":
     counter_doc += 1
     # 在外面设置好文档index，直接传入，原来的逻辑是直接一个个导入，直接按顺序记数，到几index就是几
     idx = counter_doc
-    print(init(txt, doc_name, idx))
+    print(init_with_sentence(txt))
