@@ -209,9 +209,7 @@ def init_with_unabled(
     return res
 
 
-def init_with_sentence(
-    content: str, stop_words_path: str = "init_database/stop_words.txt"
-) -> dict:
+def spilt_content(content: str) -> list:
     # 将conent字符串转换成列表
     content = content.split("\n")
 
@@ -226,6 +224,14 @@ def init_with_sentence(
             content.remove("\n")
             continue
         break
+    return content
+
+
+def init_with_sentence(
+    content: str, stop_words_path: str = "init_database/stop_words.txt"
+) -> dict:
+    # 将conent字符串转换成列表
+    content = spilt_content(content)
 
     res = []
     parai = 0
