@@ -63,25 +63,33 @@ def select_by_simhash(shashs: list) -> dict:
         return pool.map(sub_select, shashs)
 
 
-def sub_select(shash: dict):
+def sub_select(shash: dict) -> list:
     # 阈值
     thr = 0.92
 
     # 查询数据库
     sql = """
-        SELECT id, `index`, content, title, author, `from`, shash, similarity(shash, '{}') AS simi
+        SELECT id, `index`, content, title, author, `from`, shash, similarity(shash, '{}') 
             FROM corpus 
-            HAVING simi > {}
+            WHERE similarity(shash, '{}') > {} ;
     """
-    res_select = mysql_exectute(sql.format(shash["shash"], thr))
-    return {
-        "copy": shash["id"],
-        "title": res_select[3],
-        "author": res_select[4],
-        "from": res_select[5],
-        "content": res_select[2],
-        "similarity": res_select[7],
-    }
+    if shash["shash"] == "":
+        res_select = []
+    else:
+        res_select = mysql_exectute(sql.format(shash["shash"], shash["shash"], thr))
+
+    res = [
+        {
+            "copy": shash["id"],
+            "title": res[3],
+            "author": res[4],
+            "from": res[5],
+            "content": res[2],
+            "similarity": res[7],
+        }
+        for res in res_select
+    ]
+    return res
 
 
 def similarity(shash_a: str, shash_b: str) -> float:
