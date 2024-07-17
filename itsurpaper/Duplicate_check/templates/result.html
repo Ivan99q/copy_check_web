@@ -52,6 +52,35 @@
       font-size: 20px;
     }
 
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-size: 20px;
+    }
+
+    td {
+      font-size: 20px;
+      color: #ff0000;
+      /* 修改这里设置字体颜色 */
+    }
+
     .return-button {
       padding: 10px 15px;
       background-color: #4CAF50;
@@ -84,6 +113,22 @@
       {% endfor %}
     </ul>
   </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>原文疑似抄袭内容</th>
+        <th>疑似抄袭来源</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>原文</td>
+        <td>抄袭</td>
+      </tr>
+    </tbody>
+  </table>
+
   <div>
     debug: {{ items }}
   </div>

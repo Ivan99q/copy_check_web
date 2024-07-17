@@ -35,10 +35,11 @@ def submit(request):
         # 计算simhash
         s_hash = shash(data["content"])
         items = []
+        # TODO 判断传入文本是否过短
         if len(s_hash) == 0:
             return render(request, "no_result.html", context=context)
         items = select_by_simhash(s_hash["paragraphs"])
-        # 返回结果
+        # TODO 判断是否所有句子都没有查询到结果
         if len(items) == 0:
             return render(request, "no_result.html", context=context)
         context["items"] = items
@@ -77,7 +78,7 @@ def sub_select(shash: dict) -> dict:
     for s in shash["para_sentence"]:
         if s["shash"] == "":
             continue
-        print(sql.format(s["shash"], s["shash"], thr))
+        # print(sql.format(s["shash"], s["shash"], thr))
         this_s = execute_query(sql.format(s["shash"], s["shash"], thr))
         might_copy_from = [
             {
