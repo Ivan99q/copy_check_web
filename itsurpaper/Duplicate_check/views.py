@@ -63,7 +63,7 @@ def select_by_simhash(shashs: list) -> dict:
         return pool.map(sub_select, shashs)
 
 
-def sub_select(shash: dict) -> list:
+def sub_select(shash: dict) -> dict:
     # 阈值
     thr = 0.92
 
@@ -76,19 +76,21 @@ def sub_select(shash: dict) -> list:
     if shash["shash"] == "":
         res_select = []
     else:
-        res_select = mysql_exectute(sql.format(shash["shash"], shash["shash"], thr))
+        res_select = execute_query(sql.format(shash["shash"], shash["shash"], thr))
 
-    res = [
-        {
-            "copy": shash["id"],
-            "title": res[3],
-            "author": res[4],
-            "from": res[5],
-            "content": res[2],
-            "similarity": res[7],
-        }
-        for res in res_select
-    ]
+    res = {
+        "copy": shash["id"],
+        "items": [
+            {
+                "title": res[3],
+                "author": res[4],
+                "from": res[5],
+                "content": res[2],
+                "similarity": res[7],
+            }
+            for res in res_select
+        ],
+    }
     return res
 
 

@@ -1,4 +1,5 @@
 import mysql.connector
+from sqlalchemy import create_engine, text
 
 
 def mysql_init():
@@ -100,7 +101,7 @@ def mysql_select(table: str, conditions: dict | None) -> list:
     return results
 
 
-def mysql_exectute(sql: str):
+def mysql_execute(sql: str):
     print(sql)
     conn, cursor = mysql_init()
     if not conn or not cursor:
@@ -119,15 +120,28 @@ def mysql_exectute(sql: str):
         conn.close()
 
 
-if __name__ == "__main__":
-    print(mysql_exectute('select * from corpus limit 100;'))
+def execute_query(query):
+    engine = create_engine(
+       f"mysql+mysqlconnector://mysql_admin:mysql%40admin123@rm-wz900944kd610ohzl4o.mysql.rds.aliyuncs.com:3306/copy_check?charset=utf8mb4"
+    )
 
-    """
-        SELECT id, `index`, content, title, author, `from`, shash, 
-            similarity(CONVERT(shash USING utf8mb4), 
-                CONVERT('0010010010011011010000010101011100100001010011111010000110100000' 
-                    USING utf8mb4)) 
-                AS simi
-            FROM corpus 
-            HAVING simi > 0.92 ;
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(text(query))
+            return result.fetchall()
+    except Exception as e:
+        print(f"Error executing query: {e}")
+        return None
+
+
+if __name__ == "__main__":
+    print(
+        execute_query(
             """
+        SELECT id, `index`, content, title, author, `from`, shash, 
+            hamming_distance(shash, CONVERT('0010010010011011010000010101011100100001010011111010000110100000' USING utf8mb4)) 
+            FROM corpus 
+            LIMIT 10;
+            """
+        )
+    )
