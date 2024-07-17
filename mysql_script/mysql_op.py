@@ -17,11 +17,12 @@ def mysql_init():
         conn = mysql.connector.connect(**config)
 
         cursor = conn.cursor()
-
+        cursor.execute("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;")
         return conn, cursor
 
     except mysql.connector.Error as err:
-        print(f"Error: {err}")
+        print(f"Error connecting to MySQL database: {err}")
+        return None, None
 
 
 def mysql_insert(table: str, columns_values: dict):
@@ -100,18 +101,33 @@ def mysql_select(table: str, conditions: dict | None) -> list:
 
 
 def mysql_exectute(sql: str):
+    print(sql)
     conn, cursor = mysql_init()
-    cursor.execute(sql)
-    results = cursor.fetchall()
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return results
+    if not conn or not cursor:
+        print("Failed to initialize database connection")
+        return None
+    try:
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        conn.commit()
+        return results
+    except mysql.connector.Error as err:
+        print(f"Error executing SQL command on database: {err}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
 
 
 if __name__ == "__main__":
-    mysql_insert("test", {"ttt": 2})
-    mysql_update("test", {"ttt": 3}, {"ttt": 1})
-    print(mysql_select("test", {"ttt": 1}))
-    print(mysql_select("test", {}))
-    print(mysql_select("test", None))
+    print(mysql_exectute('select * from corpus limit 100;'))
+
+    """
+        SELECT id, `index`, content, title, author, `from`, shash, 
+            similarity(CONVERT(shash USING utf8mb4), 
+                CONVERT('0010010010011011010000010101011100100001010011111010000110100000' 
+                    USING utf8mb4)) 
+                AS simi
+            FROM corpus 
+            HAVING simi > 0.92 ;
+            """
