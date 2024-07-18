@@ -69,7 +69,7 @@ def sub_select(shash: dict) -> dict:
 
     # 查询数据库
     sql = """
-        SELECT id, `index`, content, title, author, `from`, shash
+        SELECT content, title, author, `from`
             FROM corpus 
             WHERE similarity(shash, '{}') > {} ;
     """
