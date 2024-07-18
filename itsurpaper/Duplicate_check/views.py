@@ -95,34 +95,6 @@ def sub_select(shash: dict) -> dict:
     }
 
 
-def sub_select1111(shash: dict) -> dict:
-    # 阈值
-    thr = 0.92
-
-    # 查询数据库
-    sql = """
-        SELECT id, `index`, content, title, author, `from`, shash 
-            FROM corpus 
-            WHERE content = {};
-    """
-
-    res_select = execute_query(sql.format(shash["para"]))
-
-    res = {
-        "copy": shash["id"],
-        "items": [
-            {
-                "title": res[3],
-                "author": res[4],
-                "from": res[5],
-                "content": res[2],
-            }
-            for res in res_select
-        ],
-    }
-    return res
-
-
 def similarity(shash_a: str, shash_b: str) -> float:
     # 计算相似度
     hanming = hammingDis(shash_a, shash_b)

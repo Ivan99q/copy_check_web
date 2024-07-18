@@ -244,19 +244,20 @@ def init_with_sentence(
 
         para_res = []
         for s in sentence:
+            # 去除全角空格和制表符，换行替换为空格
+            """
             s = (
                 s.replace("\u3000", "")
                 .replace("\t", "")
                 .replace("  ", "")
                 .replace("\r", "")
-            )  # 去除全角空格和制表符，换行替换为空格
-            if s == "" or s == " ":
-                continue
+            )
+            """
             shash = simhash(s, stop_words_path)
             if shash == "":
                 para_res.append({"sentence": s, "shash": ""})
-                continue
-            para_res.append({"sentence": s, "shash": shash})
+            else:
+                para_res.append({"sentence": s, "shash": shash})
         res.append({"para_id": parai, "para_sentence": para_res})
         parai += 1
     return {"paragraphs": res}
