@@ -55,7 +55,7 @@ def shash(content: str) -> dict:
     return res
 
 
-def select_by_simhash(shashs: list) -> dict:
+def select_by_simhash(shashs: list) -> list:
     # 多线程查询数据库
     with multiprocessing.Pool(processes=12) as pool:
         return pool.map(sub_select, shashs)
@@ -69,7 +69,7 @@ def sub_select(shash: dict) -> dict:
 
     # 查询数据库
     sql = """
-        SELECT id, `index`, content, title, author, `from`, shash, similarity(shash, '{}') 
+        SELECT id, `index`, content, title, author, `from`, shash
             FROM corpus 
             WHERE similarity(shash, '{}') > {} ;
     """
@@ -78,15 +78,13 @@ def sub_select(shash: dict) -> dict:
     for s in shash["para_sentence"]:
         if s["shash"] == "":
             continue
-        # print(sql.format(s["shash"], s["shash"], thr))
-        this_s = execute_query(sql.format(s["shash"], s["shash"], thr))
+        this_s = execute_query(sql.format(s["shash"], thr))
         might_copy_from = [
             {
                 "title": res[3],
                 "author": res[4],
                 "from": res[5],
                 "content": res[2],
-                "similarity": res[7],
             }
             for res in this_s
         ]
