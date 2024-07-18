@@ -122,7 +122,7 @@ def mysql_execute(sql: str):
 
 def execute_query(query):
     engine = create_engine(
-       f"mysql+mysqlconnector://mysql_admin:mysql%40admin123@rm-wz900944kd610ohzl4o.mysql.rds.aliyuncs.com:3306/copy_check?charset=utf8mb4"
+        f"mysql+mysqlconnector://mysql_admin:mysql%40admin123@rm-wz900944kd610ohzl4o.mysql.rds.aliyuncs.com:3306/copy_check?charset=utf8mb4"
     )
 
     try:

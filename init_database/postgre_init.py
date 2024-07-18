@@ -20,6 +20,7 @@ done = 0
 
 def processing_bar():
     total = 147415
+    global done
     progress = (done + 1) / total
     bar_length = 50
     block = int(round(bar_length * progress))
@@ -67,7 +68,7 @@ def init_by_para(para: dict):
             "mhash": str(mhash),
         }
         postgresql_insert("corpus_sentence", data)
-        processing_bar()
+        running_time()
 
 
 if __name__ == "__main__":
@@ -82,5 +83,9 @@ if __name__ == "__main__":
         for para in paras
     ]
     print("查询成功")
-    with multiprocessing.Pool(processes=24) as pool:
-        pool.map(init_by_para, paras)
+    for i in range(5):
+        with multiprocessing.Pool(processes=24) as pool:
+            try:
+                pool.map(init_by_para, paras)
+            except TypeError:
+                print("灌库完成")
