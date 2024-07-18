@@ -14,10 +14,12 @@ from text.sparkAPI import *
 
 global start_time
 start_time = time.time()
+global done
+done = 0
 
 
-def processing_bar(total):
-    global done
+def processing_bar():
+    total = 147415
     progress = (done + 1) / total
     bar_length = 50
     block = int(round(bar_length * progress))
@@ -65,6 +67,7 @@ def init_by_para(para: dict):
             "mhash": str(mhash),
         }
         postgresql_insert("corpus_sentence", data)
+        processing_bar()
 
 
 if __name__ == "__main__":
@@ -79,5 +82,5 @@ if __name__ == "__main__":
         for para in paras
     ]
     print("查询成功")
-    with multiprocessing.Pool(processes=16) as pool:
+    with multiprocessing.Pool(processes=24) as pool:
         pool.map(init_by_para, paras)
