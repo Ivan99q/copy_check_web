@@ -7,7 +7,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../../")
 
-from mysql_script.mysql_op import *
+from sql_script.mysql_op import *
 from init_database.ckg import *
 
 import multiprocessing
