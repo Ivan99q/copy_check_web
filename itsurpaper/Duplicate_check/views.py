@@ -46,6 +46,7 @@ def submit(request):
 
 
 def shash(content: str) -> dict:
+    # TODO simhash、minhash切换
     res = init_with_sentence(content, "Duplicate_check/static/stop_words.txt")
 
     return res
@@ -59,16 +60,16 @@ def select_by_simhash(shashs: list) -> list:
 
 def sub_select(shash: dict) -> dict:
     # 阈值
-    thr = 0.92
+    thr = 0.85
 
-    # TODO
+    # TODO simhash、minhash切换
 
     # 查询数据库
 
     # 使用海明距离计算相似度
-    hamming = False
+    hamming = True
     # 使用余弦相似度计算相似度
-    cos = True
+    cos = False
 
     if hamming:
         sql = """
@@ -80,7 +81,7 @@ def sub_select(shash: dict) -> dict:
         sql = """
             SELECT sentence, title, author, "from"
                 FROM corpus_sentence 
-                WHERE shash <=> {}::vector(64) > {};
+                WHERE shash <=> '{}'::vector(64) > {};
             """
 
     para_id = shash["para_id"]
@@ -90,8 +91,8 @@ def sub_select(shash: dict) -> dict:
             might_copy_from = []
 
         else:
-            v = [_ for _ in s["shash"]]
-            this_s = postgresql_execute(sql.format(str(v), thr))
+            v = [int(_) for _ in s["shash"]]
+            this_s = postgresql_execute(sql.format(v, thr))
             might_copy_from = [
                 {
                     "title": res[1],
