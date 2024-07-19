@@ -113,19 +113,16 @@ def postgresql_execute(sql: str):
 
 
 if __name__ == "__main__":
-    # 定义测试表名和数据
-    test_table = "test_table"
-    insert_data = {"column1": "value1", "column2": "value2"}
-
-    # 插入数据
-    print("Inserting data into the table...")
-    postgresql_insert(test_table, insert_data)
-
-    # 查询数据
-    print("Querying data from the table...")
-    results = postgresql_select(test_table, None)
-
-    # 打印查询结果
-    print("Query results:")
-    for row in results:
-        print(row)
+    print(
+        len(
+            postgresql_execute(
+                """
+-- 查看计算出的相似度值
+SELECT sentence, title, author, "from", (1 - (shash <#> '[0,0,1,0,0,0,0,0,1,0,0,1,0,1,1,0,1,0,1,0,1,1,0,0,0,0,1,1,1,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1,1,1,1,1,0,0,0,1,0,1,1,1,0,0,1,1,1,0,1,1]'::vector)) AS similarity
+FROM corpus_sentence
+ORDER BY similarity DESC
+LIMIT 10;
+                """
+            )
+        )
+    )

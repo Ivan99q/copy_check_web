@@ -8,6 +8,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../../")
 
 from sql_script.mysql_op import *
+from sql_script.postgresql_op import *
 from init_database.ckg import *
 
 import multiprocessing
@@ -68,17 +69,30 @@ def sub_select(shash: dict) -> dict:
     # TODO
 
     # 查询数据库
+
+    # 使用海明距离计算相似度
     sql = """
         SELECT content, title, author, `from`
-            FROM corpus 
-            WHERE similarity(shash, '{}') > {} ;
-    """
+            FROM corpus_sentence 
+            WHERE 1 - (shash <=> {}::vector(64)) / 64 > {};
+        """
+
+    # 使用余弦相似度计算相似度
+    '''
+    sql = """
+        SELECT content, title, author, `from`
+            FROM corpus_sentence 
+            WHERE shash <#> {}::vector(64) > {};
+        """
+    '''
+
     para_id = shash["para_id"]
     para_sentence = []
     for s in shash["para_sentence"]:
         if s["shash"] == "":
             continue
-        this_s = execute_query(sql.format(s["shash"], thr))
+        v = [_ for _ in s["shash"]]
+        this_s = postgresql_execute(sql.format(str(v), thr))
         might_copy_from = [
             {
                 "title": res[3],
@@ -88,7 +102,13 @@ def sub_select(shash: dict) -> dict:
             }
             for res in this_s
         ]
-        para_sentence.append({"sentence": s["sentence"], "copy_from": might_copy_from})
+        para_sentence.append(
+            {
+                "sentence": s["sentence"],
+                "copy": 1 if len(might_copy_from) != 0 else 0,
+                "copy_from": might_copy_from,
+            }
+        )
     return {
         "para_id": para_id,
         "para_sentence": para_sentence,

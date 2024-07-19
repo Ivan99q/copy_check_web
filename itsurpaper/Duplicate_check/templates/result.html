@@ -100,14 +100,15 @@
   <h1>检测结果</h1>
   <h2>标题：{{ title }}</h2>
   <h2>作者：{{ author }}</h2>
-  <p>该文本可能共抄袭了 {{ items_count }} 个文段中的内容</p>
+  <!--<p>该文本可能共抄袭了 {{ items_count }} 个文段中的内容</p>-->
 
   <div class="list-display">
     <ul>
-      {% for c in original_content %}
+      {% for para in items %}
       <li>
         <div class="content-box">
-          {{ c }}
+          {% for sentence in para.para_sentence %}<span class="{{ sentence.copy }}">{{ sentence.sentence }}</span>{%
+          endfor %}
         </div>
       </li>
       {% endfor %}
@@ -124,7 +125,12 @@
     <tbody>
       <tr>
         <td>原文</td>
-        <td>抄袭</td>
+        <td>
+          <p>标题：</p>
+          <p>作者：</p>
+          <p>来源：</p>
+          <p>正文：</p>
+        </td>
       </tr>
     </tbody>
   </table>

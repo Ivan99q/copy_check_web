@@ -135,13 +135,4 @@ def execute_query(query):
 
 
 if __name__ == "__main__":
-    print(
-        execute_query(
-            """
-        SELECT id, `index`, content, title, author, `from`, shash, 
-            hamming_distance(shash, CONVERT('0010010010011011010000010101011100100001010011111010000110100000' USING utf8mb4)) 
-            FROM corpus 
-            LIMIT 10;
-            """
-        )
-    )
+    print(len(execute_query("")))
