@@ -85,7 +85,9 @@ def sub_select(shash: dict) -> dict:
     para_sentence = []
     for s in shash["para_sentence"]:
         if s["shash"] == "":
+            # TODO
             continue
+
         v = [_ for _ in s["shash"]]
         this_s = postgresql_execute(sql.format())
         # str(v), thr
