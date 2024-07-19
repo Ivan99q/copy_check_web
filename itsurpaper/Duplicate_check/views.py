@@ -66,44 +66,45 @@ def sub_select(shash: dict) -> dict:
     # 查询数据库
 
     # 使用海明距离计算相似度
-    sql = """
-        SELECT sentence, title, author, "from"
-            FROM corpus_sentence 
-            limit 2;
-        """
-
+    hamming = False
     # 使用余弦相似度计算相似度
-    '''
-    sql = """
-        SELECT sentence, title, author, "from"
-            FROM corpus_sentence 
-            WHERE shash <#> {}::vector(64) > {};
-        """
-    '''
+    cos = True
+
+    if hamming:
+        sql = """
+            SELECT sentence, title, author, "from"
+                FROM corpus_sentence 
+                WHERE (1 - ROUND(((shash <-> '{}'::vector) ^ 2)::numeric) / 64) > {} 
+            """
+    elif cos:
+        sql = """
+            SELECT sentence, title, author, "from"
+                FROM corpus_sentence 
+                WHERE shash <=> {}::vector(64) > {};
+            """
 
     para_id = shash["para_id"]
     para_sentence = []
     for s in shash["para_sentence"]:
         if s["shash"] == "":
-            # TODO
-            continue
+            might_copy_from = []
 
-        v = [_ for _ in s["shash"]]
-        this_s = postgresql_execute(sql.format())
-        # str(v), thr
-        might_copy_from = [
-            {
-                "title": res[1],
-                "author": res[2],
-                "from": res[3],
-                "content": res[0],
-            }
-            for res in this_s
-        ]
+        else:
+            v = [_ for _ in s["shash"]]
+            this_s = postgresql_execute(sql.format(str(v), thr))
+            might_copy_from = [
+                {
+                    "title": res[1],
+                    "author": res[2],
+                    "from": res[3],
+                    "content": res[0],
+                }
+                for res in this_s
+            ]
         para_sentence.append(
             {
                 "sentence": s["sentence"],
-                "copy": 1 if len(might_copy_from) != 0 else 0,
+                "copy": 1 if len(might_copy_from) > 0 else 0,
                 "copy_from": might_copy_from,
             }
         )
