@@ -244,6 +244,8 @@ def init_with_sentence(
 
         para_res = []
         for s in sentence:
+            if s == "" or s == " " or s == "\n" or s == "\r":
+                continue
             # 去除全角空格和制表符，换行替换为空格
             """
             s = (

@@ -35,14 +35,9 @@ def submit(request):
 
         # 计算simhash
         s_hash = shash(data["content"])
-        items = []
-        # TODO 判断传入文本是否过短
-        if len(s_hash) == 0:
-            return render(request, "no_result.html", context=context)
+
         items = select_by_simhash(s_hash["paragraphs"])
-        # TODO 判断是否所有句子都没有查询到结果
-        if len(items) == 0:
-            return render(request, "no_result.html", context=context)
+
         context["items"] = items
         context["items_count"] = str(len(items))
         return render(request, "result.html", context=context)
@@ -72,15 +67,15 @@ def sub_select(shash: dict) -> dict:
 
     # 使用海明距离计算相似度
     sql = """
-        SELECT content, title, author, `from`
+        SELECT sentence, title, author, "from"
             FROM corpus_sentence 
-            WHERE 1 - (shash <=> {}::vector(64)) / 64 > {};
+            limit 2;
         """
 
     # 使用余弦相似度计算相似度
     '''
     sql = """
-        SELECT content, title, author, `from`
+        SELECT sentence, title, author, "from"
             FROM corpus_sentence 
             WHERE shash <#> {}::vector(64) > {};
         """
@@ -92,13 +87,14 @@ def sub_select(shash: dict) -> dict:
         if s["shash"] == "":
             continue
         v = [_ for _ in s["shash"]]
-        this_s = postgresql_execute(sql.format(str(v), thr))
+        this_s = postgresql_execute(sql.format())
+        # str(v), thr
         might_copy_from = [
             {
-                "title": res[3],
-                "author": res[4],
-                "from": res[5],
-                "content": res[2],
+                "title": res[1],
+                "author": res[2],
+                "from": res[3],
+                "content": res[0],
             }
             for res in this_s
         ]

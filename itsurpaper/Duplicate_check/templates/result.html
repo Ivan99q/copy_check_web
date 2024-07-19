@@ -107,8 +107,7 @@
       {% for para in items %}
       <li>
         <div class="content-box">
-          {% for sentence in para.para_sentence %}<span class="{{ sentence.copy }}">{{ sentence.sentence }}</span>{%
-          endfor %}
+          {% for sentence in para.para_sentence %}<span class="{{ sentence.copy }}">{{ sentence.sentence }}</span>{% endfor %}
         </div>
       </li>
       {% endfor %}
@@ -123,15 +122,22 @@
       </tr>
     </thead>
     <tbody>
+      {% for para in items %}
+      {% for sentence in para.para_sentence %}
+
       <tr>
-        <td>原文</td>
+        <td>{{ sentence.sentence }}</td>
+        {% for copy_from in sentence.copy_from %}
         <td>
-          <p>标题：</p>
-          <p>作者：</p>
-          <p>来源：</p>
-          <p>正文：</p>
+          <p>标题：{{ title }}</p>
+          <p>作者：{{ author }}</p>
+          <p>来源：{{ from }}</p>
+          <p>疑似抄袭来源部分：{{ content }}</p>
         </td>
+        {% endfor %}
       </tr>
+      {% endfor %}
+      {% endfor %}
     </tbody>
   </table>
 
