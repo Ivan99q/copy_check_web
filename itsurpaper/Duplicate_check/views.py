@@ -47,7 +47,6 @@ def submit(request):
 
 def shash(content: str) -> dict:
     res = init_with_sentence(content, "Duplicate_check/static/stop_words.txt")
-
     return res
 
 
