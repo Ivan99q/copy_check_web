@@ -49,8 +49,8 @@
       padding: 10px;
       border: 1px solid #ccc;
       background-color: #f9f9f9;
-      font-family: 'Courier New', Courier, monospace;
       font-size: 20px;
+      color: #000;
     }
 
     table {
@@ -119,7 +119,7 @@
         <th>疑似抄袭来源</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="list-display">
       {% for para in items %}
       {% for sentence in para.para_sentence %}
       <tr class="t{{ sentence.copy }}">
@@ -128,10 +128,13 @@
           <ul>
             {% for copy_from in sentence.copy_from %}
             <li>
-              <p>标题：{{ copy_from.title }}</p>
-              <p>作者：{{ copy_from.author }}</p>
-              <p>来源：{{ copy_from.from }}</p>
-              <p>疑似抄袭来源部分：{{ copy_from.content }}</p>
+              <div class="content-box">
+                <p>标题：{{ copy_from.title }}</p>
+                <p>作者：{{ copy_from.author }}</p>
+                <p>来源：{{ copy_from.from }}</p>
+                <p>疑似抄袭来源部分：{{ copy_from.content }}</p>
+              </div>
+
             </li>
             {% endfor %}
           </ul>
@@ -141,10 +144,6 @@
       {% endfor %}
     </tbody>
   </table>
-
-  <div>
-    debug: {{ items }}
-  </div>
 
   <button class="return-button" onclick="goBack()">返回</button>
 
@@ -170,18 +169,16 @@
     });
 
     // 获取表格的tbody中的所有tr元素
-    const rows_tb = document.querySelectorAll('#resultTable tbody tr');
+    const rows_tb = document.querySelectorAll('tbody tr');
 
     // 检查是否所有tr的class都是't0'
-    const allT0 = Array.from(rows).every(row_tb => row_tb.classList.contains('t0'));
+    const allT0 = Array.from(rows_tb).every(row_tb => row_tb.classList.contains('t0'));
 
     // 如果所有tr的class都是't0'，隐藏整个表格
     if (allT0) {
       // TODO
-      // document.getElementById('resultTable').style.display = 'none';
+      document.getElementById('resultTable').style.display = 'none';
     }
-
-
 
   </script>
 </body>
