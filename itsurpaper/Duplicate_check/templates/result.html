@@ -144,6 +144,7 @@
       {% endfor %}
     </tbody>
   </table>
+  <h2 id="no_res" style="display: none;">未检测到可能抄袭的文段</h2>
 
   <button class="return-button" onclick="goBack()">返回</button>
 
@@ -178,6 +179,7 @@
     if (allT0) {
       // TODO
       document.getElementById('resultTable').style.display = 'none';
+      document.getElementById('no_res').style.display = 'block';
     }
 
   </script>
