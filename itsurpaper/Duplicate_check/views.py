@@ -46,7 +46,6 @@ def submit(request):
 
 
 def shash(content: str) -> dict:
-    # TODO simhash、minhash切换
     res = init_with_sentence(content, "Duplicate_check/static/stop_words.txt")
 
     return res
@@ -60,9 +59,7 @@ def select_by_simhash(shashs: list) -> list:
 
 def sub_select(shash: dict) -> dict:
     # 阈值
-    thr = 0.85
-
-    # TODO simhash、minhash切换
+    thr = 0.9
 
     # 查询数据库
 
