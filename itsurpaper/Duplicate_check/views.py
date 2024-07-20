@@ -54,7 +54,7 @@ def shash(content: str) -> dict:
 
 def select_by_simhash(shashs: list) -> list:
     # 多线程查询数据库
-    with multiprocessing.Pool(processes=12) as pool:
+    with multiprocessing.Pool(processes=16) as pool:
         return pool.map(sub_select, shashs)
 
 
