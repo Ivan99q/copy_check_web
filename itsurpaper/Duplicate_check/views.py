@@ -76,6 +76,8 @@ def sub_select(shash: dict) -> dict:
             SELECT sentence, title, author, "from"
                 FROM corpus_sentence 
                 WHERE (1 - ROUND(((shash <-> '{}'::vector) ^ 2)::numeric) / 64) > {} 
+                ORDER BY (1 - ROUND(((shash <-> '{}'::vector) ^ 2)::numeric) / 64) DESC
+                LIMIT 3;
             """
     elif cos:
         sql = """
@@ -92,7 +94,7 @@ def sub_select(shash: dict) -> dict:
 
         else:
             v = [int(_) for _ in s["shash"]]
-            this_s = postgresql_execute(sql.format(v, thr))
+            this_s = postgresql_execute(sql.format(v, thr, v))
             might_copy_from = [
                 {
                     "title": res[1],
